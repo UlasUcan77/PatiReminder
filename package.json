@@ -1,0 +1,22 @@
+{
+  "name": "patireminder",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @patireminder/api",
+    "dev:web": "npm run dev -w @patireminder/web",
+    "dev:mobile": "npm run start -w @patireminder/mobile",
+    "db:up": "docker compose up -d postgres redis",
+    "db:migrate": "npm run db:migrate -w @patireminder/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint -w @patireminder/web",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build -w @patireminder/api && npm run build -w @patireminder/web"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

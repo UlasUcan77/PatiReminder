@@ -1,0 +1,28 @@
+node_modules/
+dist/
+coverage/
+*.log
+
+# Environment files: never commit real secrets. Use .env.example as the template.
+.env
+.env.*
+!.env.example
+
+# Expo / React Native
+.expo/
+web-build/
+ios/
+android/
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
