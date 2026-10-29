@@ -151,7 +151,7 @@ function PetHeader({ pet }: { pet: Pet }) {
             .join(" · ")}
         </p>
       </div>
-      <div className="row" style={{ flex: "0 0 auto" }}>
+      <div className="actions">
         <button
           disabled={printing}
           onClick={async () => {
