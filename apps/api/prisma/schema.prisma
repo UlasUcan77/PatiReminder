@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  // IANA time zone, used to send reminders at the right local time.
+  timezone     String   @default("Europe/Istanbul")
+  createdAt    DateTime @default(now())
+
+  memberships HouseholdMember[]
+  dosesGiven  MedicationDose[]
+  pushTokens  PushToken[]
+}
+
+// A household is the unit of sharing: everyone in it sees the same pets
+// and the same dose history.
+model Household {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  members HouseholdMember[]
+  pets    Pet[]
+}
+
+enum HouseholdRole {
+  OWNER
+  MEMBER
+}
+
+model HouseholdMember {
+  userId      String
+  householdId String
+  role        HouseholdRole @default(MEMBER)
+  joinedAt    DateTime      @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@id([userId, householdId])
+}
+
+enum Species {
+  DOG
+  CAT
+  OTHER
+}
+
+model Pet {
+  id          String    @id @default(cuid())
+  householdId String
+  name        String
+  species     Species   @default(DOG)
+  breed       String?
+  birthDate   DateTime?
+  photoUrl    String?
+  createdAt   DateTime  @default(now())
+
+  household     Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  vaccinations  Vaccination[]
+  medications   Medication[]
+  weightEntries WeightEntry[]
+  vetVisits     VetVisit[]
+
+  @@index([householdId])
+}
+
+// One row per vaccine shot. `dueAt` is the next date the vet asked for;
+// the app only records it and never suggests a schedule.
+model Vaccination {
+  id             String    @id @default(cuid())
+  petId          String
+  name           String
+  administeredAt DateTime?
+  dueAt          DateTime?
+  vetName        String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId, dueAt])
+}
+
+model Medication {
+  id            String    @id @default(cuid())
+  petId         String
+  name          String
+  dosage        String
+  // Doses repeat every `intervalHours` from `startsAt` until `endsAt` (if set).
+  intervalHours Int
+  startsAt      DateTime
+  endsAt        DateTime?
+  notes         String?
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  pet   Pet              @relation(fields: [petId], references: [id], onDelete: Cascade)
+  doses MedicationDose[]
+
+  @@index([petId, active])
+}
+
+enum DoseStatus {
+  PENDING
+  GIVEN
+  SKIPPED
+}
+
+model MedicationDose {
+  id           String     @id @default(cuid())
+  medicationId String
+  scheduledFor DateTime
+  status       DoseStatus @default(PENDING)
+  givenAt      DateTime?
+  givenById    String?
+
+  medication Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  givenBy    User?      @relation(fields: [givenById], references: [id], onDelete: SetNull)
+
+  // One row per scheduled dose: two family members cannot both record the
+  // same dose, which is what prevents double dosing.
+  @@unique([medicationId, scheduledFor])
+}
+
+model WeightEntry {
+  id         String   @id @default(cuid())
+  petId      String
+  kg         Decimal  @db.Decimal(5, 2)
+  measuredAt DateTime
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId, measuredAt])
+}
+
+model VetVisit {
+  id        String   @id @default(cuid())
+  petId     String
+  visitedAt DateTime
+  clinic    String?
+  reason    String?
+  notes     String?
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId, visitedAt])
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
