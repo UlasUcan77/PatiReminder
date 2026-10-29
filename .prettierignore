@@ -1,0 +1,5 @@
+node_modules
+dist
+package-lock.json
+apps/mobile/.expo
+apps/api/prisma/migrations

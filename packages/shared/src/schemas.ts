@@ -59,18 +59,20 @@ const medicationFields = {
   name: z.string().trim().min(1).max(80),
   dosage: z.string().trim().min(1).max(80),
   // Every N hours from `startsAt`: 24 = daily, 12 = twice a day, 168 = weekly.
-  intervalHours: z.coerce.number().int().min(1).max(24 * 60),
+  intervalHours: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(24 * 60),
   startsAt: date,
   endsAt: optionalDate,
   notes: text(),
   active: z.boolean().default(true),
 };
-export const medicationSchema = z
-  .object(medicationFields)
-  .refine((m) => !m.endsAt || m.endsAt > m.startsAt, {
-    message: "End date must be after the start date",
-    path: ["endsAt"],
-  });
+export const medicationSchema = z.object(medicationFields).refine((m) => !m.endsAt || m.endsAt > m.startsAt, {
+  message: "End date must be after the start date",
+  path: ["endsAt"],
+});
 export const medicationUpdateSchema = z.object(medicationFields).partial();
 export type MedicationInput = z.input<typeof medicationSchema>;
 

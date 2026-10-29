@@ -6,8 +6,7 @@ import type { HealthRecord } from "./types";
 
 const SPECIES: Record<string, string> = { DOG: "Köpek", CAT: "Kedi", OTHER: "Diğer" };
 
-const escape = (value: unknown) =>
-  String(value ?? "").replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+const escape = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 const day = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
@@ -76,7 +75,11 @@ ${table(
 )}
 
 <h2>Kilo</h2>
-${table(["Tarih", "Kilo"], weights.map((w) => [day(w.measuredAt), `${w.kg} kg`]), "Kayıtlı ölçüm yok.")}
+${table(
+  ["Tarih", "Kilo"],
+  weights.map((w) => [day(w.measuredAt), `${w.kg} kg`]),
+  "Kayıtlı ölçüm yok.",
+)}
 
 <footer>PatiReminder ile oluşturuldu. Bu belge veteriner tarafından verilen bilgilerin kaydıdır; tıbbi tavsiye içermez.</footer>
 </body></html>`;

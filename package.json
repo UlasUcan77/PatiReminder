@@ -14,9 +14,14 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint -w @patireminder/web",
     "test": "npm run test --workspaces --if-present",
-    "build": "npm run build -w @patireminder/api && npm run build -w @patireminder/web"
+    "build": "npm run build -w @patireminder/api && npm run build -w @patireminder/web",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
   }
 }

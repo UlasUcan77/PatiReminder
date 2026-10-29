@@ -39,6 +39,10 @@ export class ApiError extends Error {
 type DateLike = Date | string;
 type Body = Record<string, unknown>;
 
+// Clients may send dates as Date objects or ISO strings; the API coerces both.
+type WireValue<T> = T extends Date ? Date | string : T;
+type Wire<T> = { [K in keyof T]: WireValue<T[K]> };
+
 const toJson = (input: object): Body =>
   JSON.parse(JSON.stringify(input, (_k, v) => (v instanceof Date ? v.toISOString() : v)));
 
@@ -87,38 +91,38 @@ export function createApiClient(options: {
 
     pets: () => get<Pet[]>("/pets"),
     pet: (id: string) => get<Pet>(`/pets/${id}`),
-    createPet: (input: PetInput) => post<Pet>("/pets", input),
-    updatePet: (id: string, input: z.input<typeof petUpdateSchema>) => patch<Pet>(`/pets/${id}`, input),
+    createPet: (input: Wire<PetInput>) => post<Pet>("/pets", input),
+    updatePet: (id: string, input: Wire<z.input<typeof petUpdateSchema>>) => patch<Pet>(`/pets/${id}`, input),
     deletePet: (id: string) => del(`/pets/${id}`),
     healthRecord: (id: string) => get<HealthRecord>(`/pets/${id}/record`),
 
     vaccinations: (petId: string) => get<Vaccination[]>(`/pets/${petId}/vaccinations`),
-    createVaccination: (petId: string, input: VaccinationInput) =>
+    createVaccination: (petId: string, input: Wire<VaccinationInput>) =>
       post<Vaccination>(`/pets/${petId}/vaccinations`, input),
-    updateVaccination: (id: string, input: z.input<typeof vaccinationUpdateSchema>) =>
+    updateVaccination: (id: string, input: Wire<z.input<typeof vaccinationUpdateSchema>>) =>
       patch<Vaccination>(`/vaccinations/${id}`, input),
     deleteVaccination: (id: string) => del(`/vaccinations/${id}`),
     upcomingVaccinations: (days = 60) => get<UpcomingVaccination[]>(`/vaccinations/upcoming?days=${days}`),
 
     medications: (petId: string) => get<Medication[]>(`/pets/${petId}/medications`),
-    createMedication: (petId: string, input: MedicationInput) =>
+    createMedication: (petId: string, input: Wire<MedicationInput>) =>
       post<Medication>(`/pets/${petId}/medications`, input),
-    updateMedication: (id: string, input: z.input<typeof medicationUpdateSchema>) =>
+    updateMedication: (id: string, input: Wire<z.input<typeof medicationUpdateSchema>>) =>
       patch<Medication>(`/medications/${id}`, input),
     deleteMedication: (id: string) => del(`/medications/${id}`),
 
     doses: (from: DateLike, to: DateLike, petId?: string) =>
       get<DoseSlot[]>(`/doses?${range(from, to)}${petId ? `&petId=${petId}` : ""}`),
-    recordDose: (medicationId: string, input: DoseInput) =>
+    recordDose: (medicationId: string, input: Wire<DoseInput>) =>
       post<DoseSlot>(`/medications/${medicationId}/doses`, input),
     undoDose: (doseId: string) => del(`/doses/${doseId}`),
 
     weights: (petId: string) => get<WeightEntry[]>(`/pets/${petId}/weights`),
-    addWeight: (petId: string, input: WeightInput) => post<WeightEntry>(`/pets/${petId}/weights`, input),
+    addWeight: (petId: string, input: Wire<WeightInput>) => post<WeightEntry>(`/pets/${petId}/weights`, input),
     deleteWeight: (id: string) => del(`/weights/${id}`),
 
     visits: (petId: string) => get<VetVisit[]>(`/pets/${petId}/visits`),
-    addVisit: (petId: string, input: VetVisitInput) => post<VetVisit>(`/pets/${petId}/visits`, input),
+    addVisit: (petId: string, input: Wire<VetVisitInput>) => post<VetVisit>(`/pets/${petId}/visits`, input),
     deleteVisit: (id: string) => del(`/visits/${id}`),
 
     registerPushToken: (token: string, platform: "ios" | "android" | "web") =>
