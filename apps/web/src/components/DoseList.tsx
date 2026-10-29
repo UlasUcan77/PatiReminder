@@ -1,16 +1,8 @@
 import { Fragment, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, type DoseSlot } from "@patireminder/shared";
+import type { DoseSlot } from "@patireminder/shared";
 import { api } from "../lib/api";
-import { daysUntil, errorMessage, formatTime } from "../lib/format";
-
-function dayLabel(iso: string) {
-  const days = daysUntil(iso);
-  if (days === 0) return "Bugün";
-  if (days === 1) return "Yarın";
-  if (days === -1) return "Dün";
-  return new Date(iso).toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
-}
+import { alreadyRecordedMessage, dayLabel, errorMessage, formatTime } from "../lib/format";
 
 type Props = { doses: DoseSlot[]; showPet?: boolean; emptyText: string };
 
@@ -23,12 +15,7 @@ export function DoseList({ doses, showPet = false, emptyText }: Props) {
       api.recordDose(vars.slot.medicationId, { scheduledFor: vars.slot.scheduledFor, status: vars.status }),
     onError: (err) => {
       // Someone else in the family got there first: say who, don't double up.
-      if (err instanceof ApiError && err.status === 409) {
-        const dose = (err.body as { dose?: DoseSlot }).dose;
-        setError(
-          `${dose?.givenBy?.name ?? "Başka biri"} bu dozu zaten işaretlemiş${dose?.givenAt ? ` (${formatTime(dose.givenAt)})` : ""}.`,
-        );
-      } else setError(errorMessage(err));
+      setError(alreadyRecordedMessage(err) ?? errorMessage(err));
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ["doses"] }),
   });

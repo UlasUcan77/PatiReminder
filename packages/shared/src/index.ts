@@ -6,3 +6,4 @@ export * from "./types";
 export * from "./schedule";
 export * from "./api-client";
 export * from "./health-record";
+export * from "./format";
