@@ -24,7 +24,9 @@ describe("pets", () => {
     expect((await as(stranger).get(`/pets/${pet.id}`)).status).toBe(404);
     expect((await as(stranger).patch(`/pets/${pet.id}`, { name: "Mine" })).status).toBe(404);
     expect((await as(stranger).delete(`/pets/${pet.id}`)).status).toBe(404);
-    expect((await as(stranger).post(`/pets/${pet.id}/vaccinations`, { name: "Kuduz", dueAt: new Date() })).status).toBe(404);
+    expect((await as(stranger).post(`/pets/${pet.id}/vaccinations`, { name: "Kuduz", dueAt: new Date() })).status).toBe(
+      404,
+    );
   });
 
   it("cannot be created in someone else's household", async () => {
@@ -70,7 +72,10 @@ describe("households", () => {
     const ulas = await signUp("Ulas");
     const ayse = await signUp("Ayse");
     const invite = await as(ulas).post(`/households/${ulas.householdId}/invites`);
-    await prisma.householdInvite.update({ where: { code: invite.body.code }, data: { expiresAt: new Date(Date.now() - 1000) } });
+    await prisma.householdInvite.update({
+      where: { code: invite.body.code },
+      data: { expiresAt: new Date(Date.now() - 1000) },
+    });
 
     expect((await as(ayse).post("/households/join", { code: invite.body.code })).status).toBe(404);
   });
@@ -108,7 +113,9 @@ describe("vaccinations", () => {
     });
 
     let upcoming = await as(ulas).get("/vaccinations/upcoming");
-    expect(upcoming.body.map((v: { id: string; petName: string }) => [v.id, v.petName])).toEqual([[first.body.id, "Boncuk"]]);
+    expect(upcoming.body.map((v: { id: string; petName: string }) => [v.id, v.petName])).toEqual([
+      [first.body.id, "Boncuk"],
+    ]);
 
     await as(ulas).post(`/pets/${pet.id}/vaccinations`, {
       name: "Kuduz",

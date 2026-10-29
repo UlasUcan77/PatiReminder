@@ -91,7 +91,9 @@ dosesRouter.post("/medications/:id/doses", validateBody(doseSchema), async (req,
         where: { medicationId_scheduledFor: { medicationId: med.id, scheduledFor: input.scheduledFor } },
         include: { givenBy: { select: { id: true, name: true } } },
       });
-      res.status(409).json({ error: "This dose was already recorded", dose: toSlot(med, existing.scheduledFor, existing) });
+      res
+        .status(409)
+        .json({ error: "This dose was already recorded", dose: toSlot(med, existing.scheduledFor, existing) });
       return;
     }
     throw err;

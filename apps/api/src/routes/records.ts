@@ -2,7 +2,12 @@
 // (/vaccinations/:id, /medications/:id, ...). Creating and listing them goes
 // through the pet: see routes/pets.ts.
 import { Router } from "express";
-import { medicationSchema, medicationUpdateSchema, vaccinationUpdateSchema, type UpcomingVaccination } from "@patireminder/shared";
+import {
+  medicationSchema,
+  medicationUpdateSchema,
+  vaccinationUpdateSchema,
+  type UpcomingVaccination,
+} from "@patireminder/shared";
 import { z } from "zod";
 import { prisma } from "../db";
 import { memberOf, requireMedication } from "../lib/access";

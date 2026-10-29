@@ -16,7 +16,8 @@
     "test": "npm run test --workspaces --if-present",
     "build": "npm run build -w @patireminder/api && npm run build -w @patireminder/web",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:seed": "npm run db:seed -w @patireminder/api"
   },
   "engines": {
     "node": ">=22"

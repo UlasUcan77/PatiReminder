@@ -42,7 +42,9 @@ describe("POST /auth/register", () => {
   });
 
   it("rejects a short password", async () => {
-    const res = await request(app).post("/auth/register").send({ ...user, password: "short" });
+    const res = await request(app)
+      .post("/auth/register")
+      .send({ ...user, password: "short" });
     expect(res.status).toBe(400);
     expect(res.body.issues).toHaveProperty("password");
   });
@@ -61,7 +63,9 @@ describe("POST /auth/login", () => {
 
   it("gives the same answer for a wrong password and an unknown email", async () => {
     const wrongPassword = await request(app).post("/auth/login").send({ email: user.email, password: "nope-nope" });
-    const unknownEmail = await request(app).post("/auth/login").send({ email: "who@example.com", password: "nope-nope" });
+    const unknownEmail = await request(app)
+      .post("/auth/login")
+      .send({ email: "who@example.com", password: "nope-nope" });
     expect(wrongPassword.status).toBe(401);
     expect(unknownEmail.status).toBe(401);
     expect(wrongPassword.body).toEqual(unknownEmail.body);

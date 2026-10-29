@@ -97,7 +97,10 @@ petsRouter.post("/:id/vaccinations", validateBody(vaccinationSchema), async (req
 
   const vaccination = await prisma.$transaction(async (tx) => {
     if (replacesId) {
-      const { count } = await tx.vaccination.updateMany({ where: { id: replacesId, petId: pet.id }, data: { dueAt: null } });
+      const { count } = await tx.vaccination.updateMany({
+        where: { id: replacesId, petId: pet.id },
+        data: { dueAt: null },
+      });
       if (count === 0) throw new HttpError(404, "Vaccination to replace not found");
     }
     return tx.vaccination.create({
