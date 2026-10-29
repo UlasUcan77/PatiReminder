@@ -15,11 +15,6 @@ services:
       interval: 5s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6380:6379"
-
   api:
     build:
       context: .
@@ -27,7 +22,6 @@ services:
     profiles: ["full"]
     environment:
       DATABASE_URL: postgresql://pati:pati@postgres:5432/patireminder
-      REDIS_URL: redis://redis:6379
       # Read from your shell or a root .env file; the API refuses to start without it.
       JWT_SECRET: ${JWT_SECRET:-}
       CORS_ORIGIN: http://localhost:5173

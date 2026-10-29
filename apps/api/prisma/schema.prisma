@@ -30,6 +30,20 @@ model Household {
 
   members HouseholdMember[]
   pets    Pet[]
+  invites HouseholdInvite[]
+}
+
+// A short code a member shares so someone else can join the household.
+model HouseholdInvite {
+  code        String   @id
+  householdId String
+  createdById String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId])
 }
 
 enum HouseholdRole {
@@ -164,4 +178,12 @@ model PushToken {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// One row per reminder that has been sent. The unique key makes sending
+// idempotent: if two API instances run the reminder job at the same time,
+// only the one that inserts the row first sends the notification.
+model ReminderLog {
+  key    String   @id
+  sentAt DateTime @default(now())
 }

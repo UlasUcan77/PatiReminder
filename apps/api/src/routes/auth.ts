@@ -11,7 +11,7 @@ import {
 import { prisma } from "../db";
 import { HttpError } from "../lib/http-error";
 import { signToken } from "../lib/token";
-import { requireAuth } from "../middleware/auth";
+import { currentUser, requireAuth } from "../middleware/auth";
 import { validateBody } from "../middleware/validate";
 
 const BCRYPT_ROUNDS = 12;
@@ -37,12 +37,12 @@ authRouter.post("/register", validateBody(registerSchema), async (req, res) => {
       timezone: input.timezone,
       passwordHash: await bcrypt.hash(input.password, BCRYPT_ROUNDS),
       memberships: {
-        create: { role: "OWNER", household: { create: { name: `${input.name}'s home` } } },
+        create: { role: "OWNER", household: { create: { name: `${input.name} evi` } } },
       },
     },
   });
 
-  const body: AuthResponse = { token: signToken(user.id), user: toPublicUser(user) };
+  const body: AuthResponse = { token: signToken(user), user: toPublicUser(user) };
   res.status(201).json(body);
 });
 
@@ -56,12 +56,12 @@ authRouter.post("/login", validateBody(loginSchema), async (req, res) => {
     throw new HttpError(401, "Invalid email or password");
   }
 
-  const body: AuthResponse = { token: signToken(user.id), user: toPublicUser(user) };
+  const body: AuthResponse = { token: signToken(user), user: toPublicUser(user) };
   res.json(body);
 });
 
 authRouter.get("/me", requireAuth, async (req, res) => {
-  const user = await prisma.user.findUnique({ where: { id: req.userId } });
+  const user = await prisma.user.findUnique({ where: { id: currentUser(req).id } });
   if (!user) throw new HttpError(401, "Unauthorized");
   res.json(toPublicUser(user));
 });

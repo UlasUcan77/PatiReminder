@@ -9,7 +9,7 @@
     "dev:api": "npm run dev -w @patireminder/api",
     "dev:web": "npm run dev -w @patireminder/web",
     "dev:mobile": "npm run start -w @patireminder/mobile",
-    "db:up": "docker compose up -d postgres redis",
+    "db:up": "docker compose up -d postgres",
     "db:migrate": "npm run db:migrate -w @patireminder/api",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint -w @patireminder/web",

@@ -1,15 +1,11 @@
 import request from "supertest";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
-import { createApp } from "../src/app";
 import { prisma } from "../src/db";
+import { app, resetDatabase } from "./helpers";
 
-const app = createApp();
 const user = { name: "Ulaş", email: "ulas@example.com", password: "correct-horse-battery" };
 
-beforeEach(async () => {
-  await prisma.household.deleteMany();
-  await prisma.user.deleteMany();
-});
+beforeEach(resetDatabase);
 
 afterAll(async () => {
   await prisma.$disconnect();
